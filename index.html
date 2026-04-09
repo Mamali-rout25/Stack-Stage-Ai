@@ -1,0 +1,760 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Stack Recommender for Indian Startups</title>
+    <style>
+        :root {
+            color-scheme: light dark;
+            --bg: #f5f7fa;
+            --surface: rgba(255, 255, 255, 0.96);
+            --surface-strong: #ffffff;
+            --text: #1f2937;
+            --muted: #64748b;
+            --border: #cbd5e1;
+            --accent: #ff6200;
+            --accent-dark: #e65b00;
+            --card-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+            --btn-bg: #FF6200;
+            --btn-hover: #e65b00;
+            --header-bg: linear-gradient(135deg, #FF6200 0%, #ff8a3d 100%);
+            --footer-bg: #0f172a;
+            --footer-text: #e2e8f0;
+        }
+        body {
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        body[data-theme='dark'] {
+            background: linear-gradient(135deg, #020617 0%, #10213c 100%);
+            color: #e2e8f0;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: var(--surface);
+            border-radius: 24px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            backdrop-filter: blur(16px);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+        body[data-theme='dark'] .container {
+            background: rgba(15, 23, 42, 0.85);
+            box-shadow: 0 28px 50px rgba(0, 0, 0, 0.5);
+        }
+        header {
+            position: relative;
+            background: var(--header-bg);
+            color: white;
+            padding: 42px 32px 30px;
+            text-align: center;
+            overflow: hidden;
+        }
+        header::before,
+        header::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.18;
+        }
+        header::before {
+            width: 180px;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.3);
+            top: -40px;
+            left: -40px;
+        }
+        header::after {
+            width: 280px;
+            height: 280px;
+            background: rgba(255, 255, 255, 0.12);
+            bottom: -80px;
+            right: -60px;
+        }
+        .header-tools {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: flex-end;
+            z-index: 1;
+        }
+        .theme-toggle {
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 999px;
+            padding: 10px 16px;
+            background: rgba(255,255,255,0.16);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.28);
+            transform: translateY(-1px);
+        }
+        header h1 {
+            font-size: clamp(2.2rem, 2.5vw, 3rem);
+            margin-bottom: 12px;
+            letter-spacing: -0.05em;
+        }
+        header p {
+            font-size: 1.05rem;
+            opacity: 0.92;
+            max-width: 760px;
+            margin: 0 auto;
+            line-height: 1.75;
+        }
+        .form-section,
+        .output {
+            padding: 32px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        label {
+            font-weight: 700;
+            color: var(--muted);
+        }
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--surface-strong);
+            color: var(--text);
+            font-size: 1rem;
+            transition: border-color 0.25s ease, background 0.25s ease;
+        }
+        body[data-theme='dark'] select {
+            background: #0f172a;
+            border-color: #334155;
+            color: #e2e8f0;
+        }
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(255, 98, 0, 0.12);
+        }
+        .btn {
+            margin-top: 16px;
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            background: var(--btn-bg);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+            box-shadow: 0 14px 30px rgba(255, 98, 0, 0.22);
+        }
+        .btn:hover {
+            background: var(--btn-hover);
+            transform: translateY(-1px);
+        }
+        .btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .tab {
+            padding: 12px 20px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+            color: #475569;
+        }
+        .tab.active {
+            background: #ffedd5;
+            color: #b45309;
+            border-color: #fec89a;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .card {
+            background: var(--surface-strong);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 22px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s ease, background 0.3s ease;
+        }
+        body[data-theme='dark'] .card {
+            background: #111827;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+        }
+        .card:hover {
+            transform: translateY(-4px);
+        }
+        .card h3 {
+            margin-bottom: 14px;
+            color: var(--accent);
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px;
+            background: #fee2e2;
+            color: #991b1b;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+        .contrarian {
+            border-left: 4px solid #dc2626;
+            background: #fff5f5;
+        }
+        body[data-theme='dark'] .contrarian {
+            background: rgba(220, 38, 38, 0.08);
+        }
+        .cost-breakdown {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 18px;
+            border: 1px solid #e2e8f0;
+        }
+        body[data-theme='dark'] .cost-breakdown {
+            background: #0f172a;
+            border-color: #334155;
+        }
+        .cost-breakdown p {
+            margin-bottom: 8px;
+        }
+        .copy-btn {
+            margin-top: 12px;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 14px;
+            background: #0f766e;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .copy-btn:hover {
+            background: #115e59;
+            transform: translateY(-1px);
+        }
+        footer {
+            text-align: center;
+            padding: 24px 20px;
+            background: var(--footer-bg);
+            color: var(--footer-text);
+            font-size: 0.95rem;
+        }
+        @media (max-width: 900px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            header {
+                padding-top: 60px;
+            }
+            .header-tools {
+                top: 16px;
+                right: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-tools">
+                <button type="button" class="theme-toggle" id="theme-toggle">🌙 Night mode</button>
+            </div>
+            <h1>Tech Stack Recommender for Indian Startups</h1>
+            <p>Personalized, research-backed stack guidance for founders building in India.</p>
+        </header>
+        <section class="form-section">
+            <form id="recommender-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="stage">Startup Stage</label>
+                        <select id="stage" required>
+                            <option value="">Select Stage</option>
+                            <option value="pre-seed">Pre-Seed/Idea</option>
+                            <option value="seed">Seed</option>
+                            <option value="series-a">Series A (Early)</option>
+                            <option value="growth">Growth/Series B+</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="team-size">Team Size</label>
+                        <select id="team-size" required>
+                            <option value="">Select Team Size</option>
+                            <option value="small">Solo/Small (1-5)</option>
+                            <option value="medium">Medium (6-15)</option>
+                            <option value="large">Large (16+)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="budget">Budget Range (Monthly INR)</label>
+                        <select id="budget" required>
+                            <option value="">Select Budget</option>
+                            <option value="bootstrapped">Bootstrapped (&lt; ₹50,000)</option>
+                            <option value="moderate">Moderate (₹50k–₹2 Lakh)</option>
+                            <option value="enterprise">Enterprise (₹2 Lakh+)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sector">Primary Sector</label>
+                        <select id="sector" required>
+                            <option value="">Select Sector</option>
+                            <option value="fintech">Fintech</option>
+                            <option value="healthtech">Healthtech</option>
+                            <option value="ecommerce">Ecommerce/Quick Commerce</option>
+                            <option value="edtech">Edtech</option>
+                            <option value="agritech">Agritech</option>
+                            <option value="saas">SaaS/Productivity</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn" id="submit-btn">Get My Recommended Tech Stack</button>
+            </form>
+        </section>
+        <section class="output" id="output">
+            <div class="tabs">
+                <button class="tab active" type="button" data-tab="stack">Stack</button>
+                <button class="tab" type="button" data-tab="reasoning">Reasoning</button>
+                <button class="tab" type="button" data-tab="costs">Costs</button>
+                <button class="tab" type="button" data-tab="integration">India Integration</button>
+                <button class="tab" type="button" data-tab="red-flags">Red Flags</button>
+                <button class="tab" type="button" data-tab="sources">Sources</button>
+            </div>
+            <div class="tab-content active" id="stack">
+                <div id="stack-cards"></div>
+                <button class="copy-btn" id="copy-btn" type="button">Copy Recommendation (Markdown)</button>
+            </div>
+            <div class="tab-content" id="reasoning"><div id="reasoning-content"></div></div>
+            <div class="tab-content" id="costs"><div id="costs-content"></div></div>
+            <div class="tab-content" id="integration"><div id="integration-content"></div></div>
+            <div class="tab-content" id="red-flags"><div id="red-flags-content"></div></div>
+            <div class="tab-content" id="sources"><div id="sources-content"></div></div>
+        </section>
+    </div>
+    <footer>
+        Made by Mamali Rout
+    </footer>
+    <script>
+        const stackData = {
+            base: {
+                hosting: 'Vercel',
+                frontend: 'Next.js',
+                backend: 'Node.js',
+                database: 'Supabase',
+                auth: 'Supabase Auth',
+                payments: 'Razorpay'
+            },
+            overrides: {
+                'pre-seed_small_bootstrapped_fintech': {
+                    hosting: 'DigitalOcean',
+                    backend: 'Go',
+                    database: 'PostgreSQL',
+                    contrarian: true,
+                    reason: 'Go + PostgreSQL for performance-critical fintech is a contrarian choice backed by Zerodha’s architecture.'
+                },
+                'pre-seed_small_bootstrapped_healthtech': {
+                    hosting: 'DigitalOcean',
+                    backend: 'Python (Django)',
+                    database: 'PostgreSQL'
+                },
+                'pre-seed_small_bootstrapped_ecommerce': {
+                    hosting: 'DigitalOcean',
+                    backend: 'Node.js',
+                    database: 'MongoDB'
+                },
+                'pre-seed_small_bootstrapped_edtech': {
+                    hosting: 'Vercel',
+                    backend: 'Node.js',
+                    database: 'Supabase'
+                },
+                'pre-seed_small_bootstrapped_agritech': {
+                    hosting: 'DigitalOcean',
+                    backend: 'Python (Flask)',
+                    database: 'PostgreSQL'
+                },
+                'pre-seed_small_bootstrapped_saas': {
+                    hosting: 'Vercel',
+                    backend: 'Node.js',
+                    database: 'Supabase'
+                },
+                'seed_medium_moderate_fintech': {
+                    hosting: 'AWS',
+                    backend: 'Go',
+                    database: 'PostgreSQL',
+                    contrarian: true,
+                    reason: 'Moderate-budget fintech gets the Go/PostgreSQL cost and performance edge while avoiding over-platformed Node/Mongo setups.'
+                },
+                'seed_medium_moderate_healthtech': {
+                    hosting: 'AWS',
+                    backend: 'Python (Django)',
+                    database: 'PostgreSQL'
+                },
+                'seed_medium_moderate_ecommerce': {
+                    hosting: 'AWS',
+                    backend: 'Node.js',
+                    database: 'MongoDB'
+                },
+                'seed_medium_moderate_edtech': {
+                    hosting: 'Vercel',
+                    backend: 'Node.js',
+                    database: 'Supabase'
+                },
+                'seed_medium_moderate_agritech': {
+                    hosting: 'AWS',
+                    backend: 'Python (Flask)',
+                    database: 'PostgreSQL'
+                },
+                'seed_medium_moderate_saas': {
+                    hosting: 'AWS',
+                    backend: 'Node.js',
+                    database: 'Supabase'
+                },
+                'series-a_large_enterprise_fintech': {
+                    hosting: 'AWS',
+                    backend: 'Go',
+                    database: 'PostgreSQL'
+                },
+                'series-a_large_enterprise_healthtech': {
+                    hosting: 'AWS',
+                    backend: 'Python (Django)',
+                    database: 'PostgreSQL'
+                },
+                'series-a_large_enterprise_ecommerce': {
+                    hosting: 'AWS',
+                    backend: 'Node.js',
+                    database: 'MongoDB'
+                },
+                'series-a_large_enterprise_edtech': {
+                    hosting: 'AWS',
+                    backend: 'Node.js',
+                    database: 'Supabase'
+                },
+                'series-a_large_enterprise_agritech': {
+                    hosting: 'AWS',
+                    backend: 'Python (Flask)',
+                    database: 'PostgreSQL'
+                },
+                'series-a_large_enterprise_saas': {
+                    hosting: 'AWS',
+                    backend: 'Node.js',
+                    database: 'Supabase'
+                },
+                'growth_large_enterprise_fintech': {
+                    hosting: 'AWS',
+                    backend: 'Go',
+                    database: 'PostgreSQL'
+                },
+                'growth_large_enterprise_healthtech': {
+                    hosting: 'AWS',
+                    backend: 'Python (Django)',
+                    database: 'PostgreSQL'
+                },
+                'growth_large_enterprise_ecommerce': {
+                    hosting: 'AWS',
+                    backend: 'Node.js',
+                    database: 'MongoDB'
+                },
+                'growth_large_enterprise_edtech': {
+                    hosting: 'AWS',
+                    backend: 'Node.js',
+                    database: 'Supabase'
+                },
+                'growth_large_enterprise_agritech': {
+                    hosting: 'AWS',
+                    backend: 'Python (Flask)',
+                    database: 'PostgreSQL'
+                },
+                'growth_large_enterprise_saas': {
+                    hosting: 'AWS',
+                    backend: 'Node.js',
+                    database: 'Supabase'
+                }
+            }
+        };
+
+        const indiaIntegrations = {
+            fintech: {
+                name: 'Razorpay UPI',
+                link: 'https://razorpay.com/docs/payments/payment-methods/upi/',
+                note: 'Seamless UPI integration for instant payments, widely adopted in Indian fintech.'
+            },
+            healthtech: {
+                name: 'ABDM/ABHA Integration',
+                link: 'https://abdm.gov.in/',
+                note: 'Mandatory for health data interoperability under Ayushman Bharat Digital Mission.'
+            },
+            ecommerce: {
+                name: 'Razorpay + ONDC',
+                link: 'https://ondc.org/',
+                note: 'ONDC for open network commerce, combined with Razorpay for payments.'
+            },
+            edtech: {
+                name: 'DigiLocker API',
+                link: 'https://digilocker.gov.in/',
+                note: 'Secure document storage and verification for educational credentials.'
+            },
+            agritech: {
+                name: 'UPI + eNAM Integration',
+                link: 'https://enam.gov.in/',
+                note: 'eNAM for agricultural market linkage, UPI for farmer payments.'
+            },
+            saas: {
+                name: 'Aadhaar e-KYC via UIDAI',
+                link: 'https://uidai.gov.in/',
+                note: 'Secure KYC for SaaS platforms requiring identity verification.'
+            }
+        };
+
+        const costs = {
+            vercel: '₹1,680/month per developer (~$20) + usage',
+            supabase: '₹2,100/month base (~$25) + usage',
+            digitalocean: '₹335/month for Basic Droplet (~$4)',
+            aws: '₹700–₹900/month for t3.micro (Mumbai)',
+            razorpay: '2% platform fee + 18% GST on domestic/UPI transactions'
+        };
+
+        const startups = {
+            fintech: {
+                name: 'Zerodha',
+                link: 'https://zerodha.tech/stack/',
+                observation: 'Bootstrapped to India’s largest broker with a tiny team using Go for performance-critical trading engines and Python for back-office, proving massive cost savings and 99.99% uptime at scale.'
+            },
+            ecommerce: {
+                name: 'Zepto',
+                link: 'https://www.markhub24.com/post/zepto-quick-commerce-tech-stack',
+                observation: 'Scaled hyper-local 10-minute delivery using AWS microservices + React Native + Node.js + Python ML + Razorpay (UPI-heavy), proving cloud-native + India-specific payments works at extreme velocity.'
+            },
+            healthtech: {
+                name: 'Eka Care',
+                link: 'https://m.economictimes.com/small-biz/entrepreneurship/ai-and-abha-how-eka-care-digitised-110-million-health-records/articleshow/123181234.cms',
+                observation: 'Built ABDM-native platform and digitised 110+ million health records by deeply integrating Ayushman Bharat Digital Mission APIs from day one.'
+            }
+        };
+
+        const redFlags = {
+            'pre-seed_small_bootstrapped_fintech': 'High regulatory scrutiny in fintech; ensure RBI compliance and secure KYC early.',
+            'pre-seed_small_bootstrapped_healthtech': 'ABDM integration is mandatory; delays can halt launch.',
+            'pre-seed_small_bootstrapped_ecommerce': 'Operational differentiation is key; don’t compete on delivery speed alone.',
+            'pre-seed_small_bootstrapped_edtech': 'Content trust and academic verification are critical; integrate credentials early.',
+            'pre-seed_small_bootstrapped_agritech': 'Rural connectivity can be unreliable; design for offline-first data capture.',
+            'pre-seed_small_bootstrapped_saas': 'Early SaaS must validate niche use cases quickly to avoid high CAC.',
+            'seed_medium_moderate_fintech': 'Scaling payments without strong fraud controls can generate chargebacks.',
+            'seed_medium_moderate_healthtech': 'User data privacy and compliance must be built with ABDM from the start.',
+            'seed_medium_moderate_ecommerce': 'Logistics and inventory coordination are more important than a polished storefront.',
+            'seed_medium_moderate_edtech': 'Engagement drop-off is high; invest in adaptive learning and retention metrics.',
+            'seed_medium_moderate_agritech': 'Market access depends on integration with commodity networks like eNAM.',
+            'seed_medium_moderate_saas': 'Customer success processes are required before broad selling.',
+            'series-a_large_enterprise_fintech': 'Expanding beyond India will require multi-currency and compliance readiness.',
+            'series-a_large_enterprise_healthtech': 'Large health deployments must support interoperability and legacy system connectors.',
+            'series-a_large_enterprise_ecommerce': 'Supply chain reliability is the main scaling constraint.',
+            'series-a_large_enterprise_edtech': 'Peak traffic on live classes and assessments needs scalable CDN-backed delivery.',
+            'series-a_large_enterprise_agritech': 'Agriculture policy changes can rapidly shift product-market fit.',
+            'series-a_large_enterprise_saas': 'Enterprise contracts require strong security and audit controls.',
+            'growth_large_enterprise_fintech': 'Cybersecurity threats grow with volume; invest in monitoring and vaulting.',
+            'growth_large_enterprise_healthtech': 'Managing millions of records requires robust data architecture and governance.',
+            'growth_large_enterprise_ecommerce': 'Customer service scale becomes a differentiator and a cost center.',
+            'growth_large_enterprise_edtech': 'Personalization at scale is technically challenging and expensive.',
+            'growth_large_enterprise_agritech': 'Sustainability reporting and traceability become regulatory requirements.',
+            'growth_large_enterprise_saas': 'Differentiation in mature SaaS markets requires product-led growth and strong retention.'
+        };
+
+        function getStackConfig(key) {
+            return stackData.overrides[key] ? { ...stackData.base, ...stackData.overrides[key] } : { ...stackData.base };
+        }
+
+        function renderRecommendations(event) {
+            event.preventDefault();
+
+            const stage = document.getElementById('stage').value;
+            const teamSize = document.getElementById('team-size').value;
+            const budget = document.getElementById('budget').value;
+            const sector = document.getElementById('sector').value;
+
+            if (!stage || !teamSize || !budget || !sector) {
+                alert('Please complete all fields before generating a recommendation.');
+                return;
+            }
+
+            const key = `${stage}_${teamSize}_${budget}_${sector}`;
+            const stack = getStackConfig(key);
+            const integration = indiaIntegrations[sector];
+            const startup = startups[sector] || startups.fintech;
+            const redFlag = redFlags[key] || 'No specific red flag for this combination.';
+
+            const stackCards = Object.keys(stack).map((field) => {
+                const isContrarian = stack.contrarian && (field === 'backend' || field === 'database');
+                return `
+                    <div class="card ${isContrarian ? 'contrarian' : ''}">
+                        <h3>${field.charAt(0).toUpperCase() + field.slice(1)} ${isContrarian ? '<span class="badge">⚠️ Contrarian Choice</span>' : ''}</h3>
+                        <p>${stack[field]}</p>
+                        ${isContrarian ? `<p><strong>Why contrarian?</strong> ${stack.reason}</p>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('stack-cards').innerHTML = stackCards;
+
+            document.getElementById('reasoning-content').innerHTML = `
+                <div class="card">
+                    <h3>Data-backed reasoning</h3>
+                    <p>For a ${stage.replace('-', ' ')} startup with a ${teamSize} team and ${budget} budget in ${sector}, this stack balances speed to market, reliability, and India-specific compliance.</p>
+                    <p><strong>Relevant reference:</strong> <a href="${startup.link}" target="_blank" rel="noopener">${startup.name}</a> — ${startup.observation}</p>
+                </div>
+            `;
+
+            document.getElementById('costs-content').innerHTML = `
+                <div class="card">
+                    <h3>Monthly cost callout (INR)</h3>
+                    <div class="cost-breakdown">
+                        <p><strong>Hosting (${stack.hosting}):</strong> ${costs[stack.hosting.toLowerCase().replace(/\s+/g, '')] || 'Varies by instance and usage'}</p>
+                        <p><strong>Database (${stack.database}):</strong> ${stack.database === 'Supabase' ? costs.supabase : 'Self-managed PostgreSQL costs vary, roughly ₹335-₹900/month for a production VPS'}</p>
+                        <p><strong>Payments (${stack.payments}):</strong> ${costs.razorpay}</p>
+                        <p><strong>Estimated baseline:</strong> ₹3,000–₹6,000/month for early setups, scaling with traffic and usage.</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('integration-content').innerHTML = `
+                <div class="card">
+                    <h3>India-specific integration</h3>
+                    <p><strong>${integration.name}</strong> — <a href="${integration.link}" target="_blank" rel="noopener">${integration.link}</a></p>
+                    <p>${integration.note}</p>
+                </div>
+            `;
+
+            document.getElementById('red-flags-content').innerHTML = `
+                <div class="card">
+                    <h3>Red flag / constraint</h3>
+                    <p>${redFlag}</p>
+                </div>
+            `;
+
+            document.getElementById('sources-content').innerHTML = `
+                <div class="card">
+                    <h3>Research sources</h3>
+                    <ul>
+                        <li><a href="${startup.link}" target="_blank" rel="noopener">${startup.name} tech stack</a></li>
+                        <li><a href="https://razorpay.com/pricing" target="_blank" rel="noopener">Razorpay pricing</a></li>
+                        <li><a href="https://vercel.com/pricing" target="_blank" rel="noopener">Vercel pricing</a></li>
+                        <li><a href="https://supabase.com/pricing" target="_blank" rel="noopener">Supabase pricing</a></li>
+                        <li><a href="https://aws.amazon.com/ec2/pricing/" target="_blank" rel="noopener">AWS EC2 pricing</a></li>
+                        <li><a href="https://www.digitalocean.com/pricing/" target="_blank" rel="noopener">DigitalOcean pricing</a></li>
+                    </ul>
+                </div>
+            `;
+
+            document.getElementById('output').style.display = 'block';
+            document.getElementById('submit-btn').disabled = true;
+        }
+
+        function handleTabClick(event) {
+            const target = event.target.closest('.tab');
+            if (!target) return;
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            target.classList.add('active');
+            const tabId = target.dataset.tab;
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function copyMarkdown() {
+            const stage = document.getElementById('stage').value;
+            const teamSize = document.getElementById('team-size').value;
+            const budget = document.getElementById('budget').value;
+            const sector = document.getElementById('sector').value;
+            const key = `${stage}_${teamSize}_${budget}_${sector}`;
+            const stack = getStackConfig(key);
+            const integration = indiaIntegrations[sector];
+            const startup = startups[sector] || startups.fintech;
+            const redFlag = redFlags[key] || 'No specific red flag for this combination.';
+
+            const markdown = `# Tech Stack Recommendation
+
+**Inputs:** ${stage}, ${teamSize}, ${budget}, ${sector}
+
+## Stack
+- Hosting: ${stack.hosting}
+- Frontend: ${stack.frontend}
+- Backend: ${stack.backend}
+- Database: ${stack.database}
+- Auth: ${stack.auth}
+- Payments: ${stack.payments}
+
+## India Integration
+${integration.name}: ${integration.link}
+${integration.note}
+
+## Reasoning
+Based on your inputs, optimized for cost, scale, and India-specific compliance. Example: ${startup.name} - ${startup.observation} (${startup.link})
+
+## Costs
+- Hosting: ${costs[stack.hosting.toLowerCase().replace(/\s+/g, '')] || 'Varies'}
+- Database: ${stack.database === 'Supabase' ? costs.supabase : 'Self-managed PostgreSQL on VPS approx ₹335–₹900/month'}
+- Payments: ${costs.razorpay}
+
+## Red Flag
+${redFlag}`;
+
+            navigator.clipboard.writeText(markdown).then(() => {
+                alert('Recommendation copied to clipboard!');
+            }).catch(() => {
+                alert('Unable to copy automatically. Please use your browser copy shortcuts.');
+            });
+        }
+
+        document.getElementById('recommender-form').addEventListener('submit', renderRecommendations);
+        document.querySelector('.tabs').addEventListener('click', handleTabClick);
+        document.getElementById('copy-btn').addEventListener('click', copyMarkdown);
+
+        const themeToggle = document.getElementById('theme-toggle');
+        function setTheme(theme) {
+            document.body.dataset.theme = theme;
+            localStorage.setItem('tech-stack-theme', theme);
+            themeToggle.textContent = theme === 'dark' ? '☀️ Day mode' : '🌙 Night mode';
+        }
+        function initTheme() {
+            const saved = localStorage.getItem('tech-stack-theme');
+            const defaultTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            setTheme(saved || defaultTheme);
+        }
+        themeToggle.addEventListener('click', () => {
+            const next = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+            setTheme(next);
+        });
+        initTheme();
+    </script>
+</body>
+</html>
