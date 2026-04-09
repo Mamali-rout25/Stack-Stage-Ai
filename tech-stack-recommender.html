@@ -5,43 +5,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tech Stack Recommender for Indian Startups</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            color-scheme: light dark;
+            --bg: #f5f7fa;
+            --surface: rgba(255, 255, 255, 0.96);
+            --surface-strong: #ffffff;
+            --text: #1f2937;
+            --muted: #64748b;
+            --border: #cbd5e1;
+            --accent: #ff6200;
+            --accent-dark: #e65b00;
+            --card-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+            --btn-bg: #FF6200;
+            --btn-hover: #e65b00;
+            --header-bg: linear-gradient(135deg, #FF6200 0%, #ff8a3d 100%);
+            --footer-bg: #0f172a;
+            --footer-text: #e2e8f0;
         }
         body {
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            color: #1f2937;
+            color: var(--text);
             min-height: 100vh;
-            padding: 20px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        body[data-theme='dark'] {
+            background: linear-gradient(135deg, #020617 0%, #10213c 100%);
+            color: #e2e8f0;
         }
         .container {
             max-width: 1100px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.96);
+            background: var(--surface);
             border-radius: 24px;
-            box-shadow: 0 28px 50px rgba(15, 23, 42, 0.12);
+            box-shadow: var(--card-shadow);
             overflow: hidden;
             backdrop-filter: blur(16px);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+        body[data-theme='dark'] .container {
+            background: rgba(15, 23, 42, 0.85);
+            box-shadow: 0 28px 50px rgba(0, 0, 0, 0.5);
         }
         header {
-            background: linear-gradient(135deg, #FF6200 0%, #ff8a3d 100%);
+            position: relative;
+            background: var(--header-bg);
             color: white;
-            padding: 36px 32px;
+            padding: 42px 32px 30px;
             text-align: center;
+            overflow: hidden;
+        }
+        header::before,
+        header::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.18;
+        }
+        header::before {
+            width: 180px;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.3);
+            top: -40px;
+            left: -40px;
+        }
+        header::after {
+            width: 280px;
+            height: 280px;
+            background: rgba(255, 255, 255, 0.12);
+            bottom: -80px;
+            right: -60px;
+        }
+        .header-tools {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: flex-end;
+            z-index: 1;
+        }
+        .theme-toggle {
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 999px;
+            padding: 10px 16px;
+            background: rgba(255,255,255,0.16);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.28);
+            transform: translateY(-1px);
         }
         header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            letter-spacing: -0.04em;
+            font-size: clamp(2.2rem, 2.5vw, 3rem);
+            margin-bottom: 12px;
+            letter-spacing: -0.05em;
         }
         header p {
             font-size: 1.05rem;
             opacity: 0.92;
             max-width: 760px;
             margin: 0 auto;
+            line-height: 1.75;
         }
         .form-section,
         .output {
@@ -59,20 +131,26 @@
         }
         label {
             font-weight: 700;
-            color: #334155;
+            color: var(--muted);
         }
         select {
             width: 100%;
             padding: 14px 16px;
-            border: 1px solid #cbd5e1;
+            border: 1px solid var(--border);
             border-radius: 12px;
-            background: white;
+            background: var(--surface-strong);
+            color: var(--text);
             font-size: 1rem;
-            transition: border-color 0.25s ease;
+            transition: border-color 0.25s ease, background 0.25s ease;
+        }
+        body[data-theme='dark'] select {
+            background: #0f172a;
+            border-color: #334155;
+            color: #e2e8f0;
         }
         select:focus {
             outline: none;
-            border-color: #ff7a1f;
+            border-color: var(--accent);
             box-shadow: 0 0 0 4px rgba(255, 98, 0, 0.12);
         }
         .btn {
@@ -81,20 +159,22 @@
             padding: 16px;
             border: none;
             border-radius: 14px;
-            background: #FF6200;
+            background: var(--btn-bg);
             color: white;
             font-size: 1.1rem;
             font-weight: 700;
             cursor: pointer;
             transition: transform 0.2s ease, background 0.2s ease;
+            box-shadow: 0 14px 30px rgba(255, 98, 0, 0.22);
         }
         .btn:hover {
-            background: #e65b00;
+            background: var(--btn-hover);
             transform: translateY(-1px);
         }
         .btn:disabled {
-            background: #cbd5e1;
+            background: #94a3b8;
             cursor: not-allowed;
+            box-shadow: none;
         }
         .tabs {
             display: flex;
@@ -123,26 +203,30 @@
             display: block;
         }
         .card {
-            background: white;
+            background: var(--surface-strong);
             border-radius: 20px;
             padding: 24px;
             margin-bottom: 22px;
-            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
-            transition: transform 0.2s ease;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s ease, background 0.3s ease;
+        }
+        body[data-theme='dark'] .card {
+            background: #111827;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
         }
         .card:hover {
             transform: translateY(-4px);
         }
         .card h3 {
             margin-bottom: 14px;
-            color: #ff6200;
+            color: var(--accent);
         }
         .badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
             padding: 5px 10px;
-            background: #fef2f2;
+            background: #fee2e2;
             color: #991b1b;
             border-radius: 999px;
             font-size: 0.82rem;
@@ -152,11 +236,18 @@
             border-left: 4px solid #dc2626;
             background: #fff5f5;
         }
+        body[data-theme='dark'] .contrarian {
+            background: rgba(220, 38, 38, 0.08);
+        }
         .cost-breakdown {
             background: #f8fafc;
             border-radius: 14px;
             padding: 18px;
             border: 1px solid #e2e8f0;
+        }
+        body[data-theme='dark'] .cost-breakdown {
+            background: #0f172a;
+            border-color: #334155;
         }
         .cost-breakdown p {
             margin-bottom: 8px;
@@ -170,20 +261,29 @@
             color: white;
             font-weight: 700;
             cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
         }
         .copy-btn:hover {
             background: #115e59;
+            transform: translateY(-1px);
         }
         footer {
             text-align: center;
             padding: 24px 20px;
-            background: #0f172a;
-            color: #e2e8f0;
+            background: var(--footer-bg);
+            color: var(--footer-text);
             font-size: 0.95rem;
         }
         @media (max-width: 900px) {
             .form-grid {
                 grid-template-columns: 1fr;
+            }
+            header {
+                padding-top: 60px;
+            }
+            .header-tools {
+                top: 16px;
+                right: 16px;
             }
         }
     </style>
@@ -191,6 +291,9 @@
 <body>
     <div class="container">
         <header>
+            <div class="header-tools">
+                <button type="button" class="theme-toggle" id="theme-toggle">🌙 Night mode</button>
+            </div>
             <h1>Tech Stack Recommender for Indian Startups</h1>
             <p>Personalized, research-backed stack guidance for founders building in India.</p>
         </header>
@@ -262,7 +365,7 @@
         </section>
     </div>
     <footer>
-        Built as TIESVERSE Phase 2 Assignment – Senior Full-Stack Engineer
+        Made by Mamali Rout
     </footer>
     <script>
         const stackData = {
@@ -635,6 +738,23 @@ ${redFlag}`;
         document.getElementById('recommender-form').addEventListener('submit', renderRecommendations);
         document.querySelector('.tabs').addEventListener('click', handleTabClick);
         document.getElementById('copy-btn').addEventListener('click', copyMarkdown);
+
+        const themeToggle = document.getElementById('theme-toggle');
+        function setTheme(theme) {
+            document.body.dataset.theme = theme;
+            localStorage.setItem('tech-stack-theme', theme);
+            themeToggle.textContent = theme === 'dark' ? '☀️ Day mode' : '🌙 Night mode';
+        }
+        function initTheme() {
+            const saved = localStorage.getItem('tech-stack-theme');
+            const defaultTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            setTheme(saved || defaultTheme);
+        }
+        themeToggle.addEventListener('click', () => {
+            const next = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+            setTheme(next);
+        });
+        initTheme();
     </script>
 </body>
 </html>
